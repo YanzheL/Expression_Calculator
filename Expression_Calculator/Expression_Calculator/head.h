@@ -2,7 +2,6 @@
 #include "stdafx.h"
 using namespace std;
 
-
 class Expression
 {
 protected:
@@ -10,65 +9,29 @@ protected:
 	vector <string> operatorStack;
 	vector <string> polishNotation_Vec;
 	string VaildOperators = "+-*/%()";
+
+	bool isOperatorValid(char ch);
+	double calc(double n1, double n2, char oper);
+
 public:
 	//初始化
 	Expression(string rawInput);
 	//将中缀表达式转换为前缀表达式
 	string parse2polish();
-	static double calc(double n1, double n2, char oper);
 	//计算中缀表达式的结果
 	double calculate();
 	//用于去除原始表达式中的空格
 	void strip();
-
-	void output()
+	//输出原始表达式
+	inline void output()
 	{
 		cout << rawExprs<<endl;
 	}
 
-	bool isOperatorValid(char ch)
-	{
-		bool vaildFlag = false;
-		for (size_t j = 0; j < VaildOperators.size(); ++j)
-		{
-			if (VaildOperators[j]==ch)
-			{
-				vaildFlag = true;
-				break;
-			}
-		}
-		return vaildFlag;
-	}
-
-	static string DoubleToString(double Input)
-	{
-		stringstream Oss;
-		Oss << Input;
-		return Oss.str();
-	}
-
+	friend string DoubleToString(double Input);
+	friend string Vector2String(vector <string> vec);
+	friend void strcut(string& str, char ch);
+	friend void strrpl(string& str, char16_t src_ch, char des_ch);
 };
 
 
-
-double Expression::calc(double n1, double n2, char oper)
-{
-	if (oper == '%')
-	{
-		if (n1 != (int)n1 || n2 != (int)n2)
-		{
-			cout << "Operator '%' can only apply to integers" << endl;
-			exit(1);
-		}
-	}
-	switch (oper)
-	{
-	case '+':return n1 + n2;
-	case '-':return n1 - n2;
-	case '*':return n1 * n2;
-	case '/':return n1 / n2;
-	case '%':return (int)n1 % (int)n2;
-	default:
-		return NULL;
-	}
-}

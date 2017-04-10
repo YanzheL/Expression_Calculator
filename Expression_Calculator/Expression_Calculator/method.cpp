@@ -1,8 +1,21 @@
-// Expression_Calculator.cpp : 定义控制台应用程序的入口点。
-//
-
+#pragma once
 #include "stdafx.h"
 #include "head.h"
+
+bool Expression::isOperatorValid(char ch)
+{
+	bool vaildFlag = false;
+	for (size_t j = 0; j < VaildOperators.size(); ++j)
+	{
+		if (VaildOperators[j] == ch)
+		{
+			vaildFlag = true;
+			break;
+		}
+	}
+	return vaildFlag;
+}
+
 void strcut(string& str, char ch)
 {
 	for (size_t i = 0; i < str.size(); )
@@ -28,9 +41,6 @@ void strrpl(string& str, char16_t src_ch, char des_ch)
 		}
 	}
 }
-
-
-
 
 Expression::Expression(string rawInput)
 {
@@ -122,22 +132,14 @@ string Expression::parse2polish()
 
 	polishNotation_Vec = tempPolish;
 
-	string polishNotation_Str = "";
-
-	for (size_t i = 0; i < polishNotation_Vec.size(); ++i)
-	{
-		polishNotation_Str += (polishNotation_Vec.at(i) + ",");
-	}
-	polishNotation_Str.pop_back();
-
-	return polishNotation_Str;
+	return Vector2String(polishNotation_Vec);
 }
 
 double Expression::calculate()
 {
 	double result = 0;
 	vector <string> poliNt_copy(polishNotation_Vec.begin(), polishNotation_Vec.end());
-	for (size_t i = poliNt_copy.size() - 1; i >= 0; )
+	for (int i = poliNt_copy.size() - 1; i >= 0; )
 	{
 		if (poliNt_copy.size() >= 3 && isdigit(poliNt_copy.at(i)[0]) == false)
 		{
@@ -163,46 +165,44 @@ void Expression::strip()
 	strcut(rawExprs, ' ');
 }
 
-
-
-
-
-
-
-
-
-int main()
+double Expression::calc(double n1, double n2, char oper)
 {
-	string rawInput;
-	cout << "Please inupt the expression:" << endl;
-
-	while (true)
+	if (oper == '%')
 	{
-		getline(cin, rawInput);
-		if (rawInput.size() == 0)
+		if (n1 != (int)n1 || n2 != (int)n2)
 		{
-			cout << "Do not input empty expression, please input again:" << endl;
-		}
-		else
-		{
-			break;
+			cout << "Operator '%' can only apply to integers" << endl;
+			exit(1);
 		}
 	}
-
-	Expression expr1(rawInput);
-
-
-
-	cout << "Stripped raw expression is:" << endl;
-	expr1.output();
-
-
-	cout << "Parsed Polish Notation is:" << endl;
-	cout << expr1.parse2polish() << endl;
-	cout << "Calculation result is:" << endl;
-	cout << expr1.calculate() << endl;
-
-	cout << endl;
-	return 0;
+	switch (oper)
+	{
+	case '+':return n1 + n2;
+	case '-':return n1 - n2;
+	case '*':return n1 * n2;
+	case '/':return n1 / n2;
+	case '%':return (int)n1 % (int)n2;
+	default:
+		return NULL;
+	}
 }
 
+string DoubleToString(double Input)
+{
+	stringstream Oss;
+	Oss << Input;
+	return Oss.str();
+}
+
+string Vector2String(vector <string> vec)
+{
+	string result_str = "";
+
+	for (size_t i = 0; i < vec.size(); ++i)
+	{
+		result_str += (vec.at(i) + ",");
+	}
+	result_str.pop_back();
+
+	return result_str;
+}
