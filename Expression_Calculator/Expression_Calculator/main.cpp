@@ -1,8 +1,7 @@
-// Expression_Calculator.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+ï»¿// Expression_Calculator.cpp : å®šä¹‰æ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 //
 #include "stdafx.h"
 #include "head.h"
-
 
 int main()
 {
@@ -16,10 +15,7 @@ int main()
 		{
 			cout << "Do not input empty expression, please input again:" << endl;
 		}
-		else
-		{
-			break;
-		}
+		else break;
 	}
 
 	Expression expr1(rawInput);
@@ -35,4 +31,3 @@ int main()
 	cout << endl;
 	return 0;
 }
-

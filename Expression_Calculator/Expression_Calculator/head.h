@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 using namespace std;
 
@@ -14,24 +14,22 @@ protected:
 	double calc(double n1, double n2, char oper);
 
 public:
-	//³õÊ¼»¯
+	//åˆå§‹åŒ–
 	Expression(string rawInput);
-	//½«ÖĞ×º±í´ïÊ½×ª»»ÎªÇ°×º±í´ïÊ½
+	//å°†ä¸­ç¼€è¡¨è¾¾å¼è½¬æ¢ä¸ºå‰ç¼€è¡¨è¾¾å¼
 	string parse2polish();
-	//¼ÆËãÖĞ×º±í´ïÊ½µÄ½á¹û
+	//è®¡ç®—ä¸­ç¼€è¡¨è¾¾å¼çš„ç»“æœ
 	double calculate();
-	//ÓÃÓÚÈ¥³ıÔ­Ê¼±í´ïÊ½ÖĞµÄ¿Õ¸ñ
-	void strip();
-	//Êä³öÔ­Ê¼±í´ïÊ½
+	//ç”¨äºå»é™¤åŸå§‹è¡¨è¾¾å¼ä¸­çš„ç©ºæ ¼
+	inline void strip();
+	//è¾“å‡ºåŸå§‹è¡¨è¾¾å¼
 	inline void output()
 	{
-		cout << rawExprs<<endl;
+		cout << rawExprs << endl;
 	}
-
-	friend string DoubleToString(double Input);
-	friend string Vector2String(vector <string> vec);
+	friend inline string DoubleToString(double Input);
+	friend inline string Vector2String(vector <string> vec);
 	friend void strcut(string& str, char ch);
-	friend void strrpl(string& str, char16_t src_ch, char des_ch);
+	friend inline void strrpl(string& str, char16_t src_ch, char des_ch);
 };
-
 

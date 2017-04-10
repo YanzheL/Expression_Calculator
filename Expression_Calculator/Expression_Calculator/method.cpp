@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include "head.h"
 
@@ -31,15 +31,10 @@ void strcut(string& str, char ch)
 	}
 }
 
-void strrpl(string& str, char16_t src_ch, char des_ch)
+inline void strrpl(string& str, char16_t src_ch, char des_ch)
 {
 	for (size_t i = 0; i < str.size(); ++i)
-	{
-		if (str[i] == src_ch)
-		{
-			str[i] = des_ch;
-		}
-	}
+		if (str[i] == src_ch) str[i] = des_ch;
 }
 
 Expression::Expression(string rawInput)
@@ -55,17 +50,14 @@ string Expression::parse2polish()
 	vector <BiArray> rightBracketPos;
 	for (int i = rawExprs.size() - 1; i >= 0; --i)
 	{
-		if (isdigit(rawExprs[i]) == false)	//Èç¹ûÊÇÔËËã·û£¬ÔòÑ¹ÈëÔËËã·ûÕ»
+		if (isdigit(rawExprs[i]) == false)	//å¦‚æœæ˜¯è¿ç®—ç¬¦ï¼Œåˆ™å‹å…¥è¿ç®—ç¬¦æ ˆ
 		{
 			string tempString;
 			if (rawExprs[i] == ')')
 			{
-
 				int operIndex = operatorStack.size() - 1;
 				if (operIndex < 0)
-				{
 					operIndex = 0;
-				}
 
 				BiArray temp;
 				temp.push_back(operIndex);
@@ -77,7 +69,6 @@ string Expression::parse2polish()
 				cout << "Invaild Operator \"" << rawExprs[i] << "\"" << endl;
 				exit(1);
 			}
-
 			else if (rawExprs[i] == '(')
 			{
 				if (rightBracketPos.size() > 0)
@@ -109,7 +100,7 @@ string Expression::parse2polish()
 				operatorStack.push_back(tempString);
 			}
 		}
-		else						//Èç¹ûÊÇÊı×Ö£¬ÔòÖ±½ÓÑ¹ÈëÇ°×º±í´ïÊ½Õ»
+		else						//å¦‚æœæ˜¯æ•°å­—ï¼Œåˆ™ç›´æ¥å‹å…¥å‰ç¼€è¡¨è¾¾å¼æ ˆ
 		{
 			string tempDigit = "";
 			int tempi = i;
@@ -160,7 +151,7 @@ double Expression::calculate()
 
 }
 
-void Expression::strip()
+inline void Expression::strip()
 {
 	strcut(rawExprs, ' ');
 }
@@ -187,22 +178,18 @@ double Expression::calc(double n1, double n2, char oper)
 	}
 }
 
-string DoubleToString(double Input)
+inline string DoubleToString(double Input)
 {
 	stringstream Oss;
 	Oss << Input;
 	return Oss.str();
 }
 
-string Vector2String(vector <string> vec)
+inline string Vector2String(vector <string> vec)
 {
 	string result_str = "";
-
 	for (size_t i = 0; i < vec.size(); ++i)
-	{
 		result_str += (vec.at(i) + ",");
-	}
 	result_str.pop_back();
-
 	return result_str;
 }
