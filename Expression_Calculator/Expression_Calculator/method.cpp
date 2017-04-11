@@ -4,88 +4,105 @@
 
 bool Expression::isOperatorValid(char ch)
 {
-	bool vaildFlag = false;
-	for (size_t j = 0; j < VaildOperators.size(); ++j)
+	bool validFlag = false;
+	for (size_t j = 0; j < ValidOperators.size(); ++j)
 	{
-		if (VaildOperators[j] == ch)
+		if (ValidOperators[j] == ch)
 		{
-			vaildFlag = true;
+			validFlag = true;
 			break;
 		}
 	}
-	return vaildFlag;
+	return validFlag;
 }
 
-void strcut(string& str, char ch)
+int Expression::findOperatorPower(char ch)
 {
-	for (size_t i = 0; i < str.size(); )
+	size_t pos;
+	for (pos = 0; pos < ValidOperators.size(); pos++)
 	{
-		size_t chPos = 0;
-		chPos = str.find(' ', i);
-		if (chPos != string::npos)
+		if (ValidOperators.at(pos) == ch)
 		{
-			str.erase(chPos, 1);
-			i = chPos + 1;
+			break;
 		}
-		else break;
 	}
-}
 
-inline void strrpl(string& str, char16_t src_ch, char des_ch)
-{
-	for (size_t i = 0; i < str.size(); ++i)
-		if (str[i] == src_ch) str[i] = des_ch;
+	if (pos < 1)
+	{
+		return 0;
+	}
+	else if (pos >= 2 && pos <= 4)
+	{
+		return 1;
+	}
+	else if (pos == 5)
+	{
+		return 2;
+	}
+	else
+	{
+		return -1;
+	}
+
 }
 
 Expression::Expression(string rawInput)
 {
-	rawExprs = rawInput;
+	InitExpression = rawInput;
 	strip();
+	for (size_t i = 0; i < InitExpression.size(); ++i)
+	{
+		if (isdigit(InitExpression[i])==false)
+		{
+			if (isOperatorValid(InitExpression[i]) == false)//检查运算符是否在已知的列表里
+			{
+				cout << "Invalid Operator \"" << InitExpression[i] << "\"" << endl;
+				exit(1);
+			}
+		}
+	}
 }
 
 string Expression::parse2polish()
 {
+	//两个元素的容器，存储一个右括号在operatorStack中的下标和在rawExprs的位置下标
 	typedef vector <int> BiArray;
-
+	//存储多个右括号的位置
 	vector <BiArray> rightBracketPos;
-	for (int i = rawExprs.size() - 1; i >= 0; --i)
+
+	for (int ielemt = InitExpression.size() - 1; ielemt >= 0; --ielemt)
 	{
-		if (isdigit(rawExprs[i]) == false)	//如果是运算符，则压入运算符栈
+		if (isdigit(InitExpression[ielemt]) == false)		//如果是运算符，则准备进入运算符栈
 		{
-			string tempString;
-			if (rawExprs[i] == ')')
+			string prepareString;
+			if (InitExpression[ielemt] == ')')
 			{
-				int operIndex = operatorStack.size() - 1;
-				if (operIndex < 0)
-					operIndex = 0;
+				OP_Stack.push_back(")");
+				int operIndex = OP_Stack.size() - 1;	//获取当前operatorStack中最后一个元素的下标
+				if (operIndex < 0)operIndex = 0;		//如果当前operatorStack没有元素，则下标设置为0
 
 				BiArray temp;
 				temp.push_back(operIndex);
-				temp.push_back(i);
+				temp.push_back(ielemt);
 				rightBracketPos.push_back(temp);
 			}
-			else if (isOperatorValid(rawExprs[i]) == false)
+			else if (isOperatorValid(InitExpression[ielemt]) == false)//检查运算符是否在已知的列表里
 			{
-				cout << "Invaild Operator \"" << rawExprs[i] << "\"" << endl;
+				cout << "Invalid Operator \"" << InitExpression[ielemt] << "\"" << endl;
 				exit(1);
 			}
-			else if (rawExprs[i] == '(')
+			else if (InitExpression[ielemt] == '(')
 			{
 				if (rightBracketPos.size() > 0)
 				{
-					for (int k = operatorStack.size() - 1; k > rightBracketPos.back()[0]; --k)
+					unsigned int delLength = OP_Stack.size() - 1 - rightBracketPos.back()[0];
+
+					for (int ii = 0; ii < delLength; ++ii)
 					{
-						polishNotation_Vec.push_back(operatorStack.at(k));
+						polishNotation_Vec.push_back(OP_Stack.back());
+						OP_Stack.pop_back();
 					}
-
-					int delLength = operatorStack.end() - (operatorStack.begin() + rightBracketPos.back()[0]);
-					operatorStack.erase(operatorStack.begin() + rightBracketPos.back()[0], operatorStack.end());
-
-					for (size_t m = 0; m < rightBracketPos.size(); ++m)
-					{
-						rightBracketPos[m][1] -= delLength;
-					}
-
+					OP_Stack.pop_back();
 					rightBracketPos.pop_back();
 				}
 				else
@@ -96,42 +113,76 @@ string Expression::parse2polish()
 			}
 			else
 			{
-				tempString.push_back(rawExprs[i]);
-				operatorStack.push_back(tempString);
+				//先装入tempString里准备push到OP_Stack
+				prepareString.push_back(InitExpression[ielemt]);
+
+				int powerCurrent = findOperatorPower(InitExpression[ielemt]);
+				int powerPrev = 0;
+
+				if (OP_Stack.size() > 0)
+					powerPrev = findOperatorPower(OP_Stack.back()[0]);
+
+				if (powerCurrent >= powerPrev)
+					OP_Stack.push_back(prepareString);
+				else if(OP_Stack.size()>=2)
+				{
+					OP_Stack.push_back(prepareString);
+					int size = OP_Stack.size() - 1;
+					swap(OP_Stack[size - 1], OP_Stack[size]);
+					polishNotation_Vec.push_back(OP_Stack.back());
+					OP_Stack.pop_back();
+				}
 			}
 		}
-		else						//如果是数字，则直接压入前缀表达式栈
+		else						//如果是数字，则直接压入前缀表达式结果容器
 		{
 			string tempDigit = "";
-			int tempi = i;
-			while (tempi >= 0 && isdigit(rawExprs[tempi]))
+			int tempi = ielemt;
+			int digitCount = 0;
+			while (tempi >= 0 && isdigit(InitExpression[tempi]))
 			{
-				tempDigit.insert(tempDigit.begin(), rawExprs[tempi]);
+				tempDigit.insert(tempDigit.begin(), InitExpression[tempi]);
 				--tempi;
+				++digitCount;
 			}
+			ielemt = ielemt - digitCount + 1;
 			polishNotation_Vec.push_back(tempDigit);
 		}
 	}
 
-	while (operatorStack.size() > 0)
+	while (OP_Stack.size() > 0)
 	{
-		polishNotation_Vec.push_back(operatorStack.back());
-		operatorStack.pop_back();
+		polishNotation_Vec.push_back(OP_Stack.back());
+		OP_Stack.pop_back();
 	}
 
+	//倒序复制到临时容器，再复制给polishNotation_Vec作为结果
 	vector <string> tempPolish(polishNotation_Vec.rbegin(), polishNotation_Vec.rend());
-
 	polishNotation_Vec = tempPolish;
-
-	return Vector2String(polishNotation_Vec);
+	//将结果转化为string类型
+	polishNotation_Str = Vec2Str(polishNotation_Vec);
+	return polishNotation_Str;
 }
 
 double Expression::calculate()
 {
+	//如果之前没有进行parse,则调用parse
+	if (polishNotation_Vec.size()==0)parse2polish();
+
 	double result = 0;
 	vector <string> poliNt_copy(polishNotation_Vec.begin(), polishNotation_Vec.end());
 	for (int i = poliNt_copy.size() - 1; i >= 0; )
 	{
+		//用于Debug
+		//cout << "----------" << i << "----------" << endl;
+		//int x = 0;
+		//while (x != poliNt_copy.size())
+		//{
+		//	cout << poliNt_copy.at(x) << ",";
+		//	++x;
+		//}
+		//cout << endl;
+
 		if (poliNt_copy.size() >= 3 && isdigit(poliNt_copy.at(i)[0]) == false)
 		{
 			result =
@@ -140,20 +191,22 @@ double Expression::calculate()
 					atof(poliNt_copy.at(i + 2).c_str()),
 					poliNt_copy.at(i).c_str()[0]
 				);
-			poliNt_copy[i + 2] = DoubleToString(result);
+			poliNt_copy[i + 2] = Double2Str(result);
 			poliNt_copy.erase(poliNt_copy.begin() + i);
-			poliNt_copy.erase(poliNt_copy.begin() + i + 1);
+			poliNt_copy.erase(poliNt_copy.begin() + i);
 			i = poliNt_copy.size() - 1;
 		}
 		else --i;
 	}
-	return result;
 
+
+
+	return result;
 }
 
 inline void Expression::strip()
 {
-	strcut(rawExprs, ' ');
+	strcut(InitExpression, ' ');
 }
 
 double Expression::calc(double n1, double n2, char oper)
@@ -173,23 +226,7 @@ double Expression::calc(double n1, double n2, char oper)
 	case '*':return n1 * n2;
 	case '/':return n1 / n2;
 	case '%':return (int)n1 % (int)n2;
-	default:
-		return NULL;
+	case '^':return pow(n1, n2);
+	default:return NULL;
 	}
-}
-
-inline string DoubleToString(double Input)
-{
-	stringstream Oss;
-	Oss << Input;
-	return Oss.str();
-}
-
-inline string Vector2String(vector <string> vec)
-{
-	string result_str = "";
-	for (size_t i = 0; i < vec.size(); ++i)
-		result_str += (vec.at(i) + ",");
-	result_str.pop_back();
-	return result_str;
 }
